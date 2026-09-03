@@ -6,7 +6,7 @@
    VERSION. Eso es lo que hace que el móvil se descargue la versión nueva.
    =========================================================================== */
 
-const VERSION = "v2";
+const VERSION = "v3";
 const CACHE = "misviajes-" + VERSION;
 
 const ARCHIVOS = [
@@ -21,7 +21,8 @@ const ARCHIVOS = [
   "iconos/icono-512.png",
   "iconos/icono-mascara.png",
   "datos/tenerife-2026.js",
-  "datos/tailandia-2027.js"
+  "datos/tailandia-2027.js",
+  "datos/japon-2025.js"
 ];
 
 self.addEventListener("install", e => {

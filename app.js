@@ -924,23 +924,37 @@ function pintarCabecera() {
   const v = viaje(), ahora = Date.now();
   const loc = ubicacion(v, ahora);
   const tzCasa = v.casa.tz;
-  const mismaZona = tzOffset(ahora, loc.tz) === tzOffset(ahora, tzCasa);
-  const difH = (tzOffset(ahora, loc.tz) - tzOffset(ahora, tzCasa)) / 3600e3;
 
   $("#cabTitulo").textContent = v.nombre;
   $("#cabSub").textContent = v.subtitulo || "";
   $("#cabEmoji").textContent = v.emoji || "🧭";
 
-  $("#relojes").innerHTML = mismaZona
-    ? `<div class="reloj"><div class="et">${esc(loc.ciudad)}</div>
-         <div class="hr num">${hora(ahora, loc.tz)}</div>
-         <div class="df">${esc(diaSem(ahora, loc.tz))} ${esc(diaMes(ahora, loc.tz))} · misma hora que en España</div></div>`
-    : `<div class="reloj"><div class="et">${esc(loc.ciudad)}</div>
-         <div class="hr num">${hora(ahora, loc.tz)}</div>
-         <div class="df">${esc(diaSem(ahora, loc.tz))} ${esc(diaMes(ahora, loc.tz))}</div></div>
-       <div class="reloj"><div class="et">España</div>
-         <div class="hr num">${hora(ahora, tzCasa)}</div>
-         <div class="df">${difH > 0 ? "van " + Math.abs(difH) + "h por detrás" : "van " + Math.abs(difH) + "h por delante"}</div></div>`;
+  /* Relojes: la ciudad donde estás + España + una zona por cada ciudad en la
+     que vas a dormir cuya zona sea distinta a las anteriores. Máximo 4. */
+  const usadas = new Set();
+  const relojes = [];
+  const push = (etiqueta, tz, sub) => {
+    if (usadas.has(tz)) return;
+    usadas.add(tz);
+    relojes.push({ etiqueta, tz, sub });
+  };
+  push(loc.ciudad, loc.tz, `${diaSem(ahora, loc.tz)} ${diaMes(ahora, loc.tz)}`);
+  const difH = (tzOffset(ahora, tzCasa) - tzOffset(ahora, loc.tz)) / 3600e3;
+  push("España", tzCasa,
+    tzOffset(ahora, tzCasa) === tzOffset(ahora, loc.tz)
+      ? `${diaSem(ahora, tzCasa)} ${diaMes(ahora, tzCasa)}`
+      : (difH > 0 ? `${diaSem(ahora, tzCasa)} · +${difH}h` : `${diaSem(ahora, tzCasa)} · ${difH}h`));
+  (v._camas || []).forEach(a => {
+    const tz = tzDe(v, a.ciudad);
+    push(a.ciudad, tz, `${diaSem(ahora, tz)} ${diaMes(ahora, tz)}`);
+  });
+
+  $("#relojes").innerHTML = relojes.slice(0, 4).map(r => `
+    <div class="reloj">
+      <div class="et">${esc(r.etiqueta)}</div>
+      <div class="hr num">${hora(ahora, r.tz)}</div>
+      <div class="df">${esc(r.sub)}</div>
+    </div>`).join("");
 }
 
 function pintarNav() {

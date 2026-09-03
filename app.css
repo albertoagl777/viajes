@@ -80,14 +80,16 @@ a { color: inherit; }
 }
 .cab-btn:active { background: rgba(255,255,255,.24); }
 
-.relojes { display: flex; gap: 8px; margin-top: 12px; }
+.relojes { display: flex; gap: 6px; margin-top: 12px; overflow-x: auto; scrollbar-width: none; }
+.relojes::-webkit-scrollbar { display: none; }
 .reloj {
-  flex: 1; background: rgba(255,255,255,.09); border-radius: var(--radio-s);
-  padding: 8px 10px; min-width: 0;
+  flex: 1 1 0; min-width: 0; background: rgba(255,255,255,.09);
+  border-radius: var(--radio-s); padding: 8px 10px;
 }
-.reloj .et { font-size: 10px; text-transform: uppercase; letter-spacing: .09em; opacity: .55; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.reloj .hr { font-size: 21px; font-weight: 700; line-height: 1.15; }
-.reloj .df { font-size: 10.5px; opacity: .5; }
+.reloj .et { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; opacity: .55; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.reloj .hr { font-size: 19px; font-weight: 700; line-height: 1.15; font-variant-numeric: tabular-nums; }
+.reloj .df { font-size: 10px; opacity: .5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.relojes:has(.reloj:nth-child(4)) .reloj .hr { font-size: 17px; }
 
 /* ---------- Estructura ---------- */
 main { padding: 16px 14px calc(var(--nav-alto) + 20px); max-width: 560px; margin: 0 auto; }
