@@ -6,7 +6,7 @@
    VERSION. Eso es lo que hace que el móvil se descargue la versión nueva.
    =========================================================================== */
 
-const VERSION = "v1";
+const VERSION = "v2";
 const CACHE = "misviajes-" + VERSION;
 
 const ARCHIVOS = [

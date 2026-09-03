@@ -66,7 +66,7 @@ VIAJES.push({
       precio: 78, precioNoche: 77.84, puntos: 8500,
       localizador: null,
       maps: "Sol Arona Tenerife, Los Cristianos",
-      notas: ["Reserva en Puntos + Dinero de MeliáRewards."]
+      notas: ["Reserva en Puntos + Dinero de MeliáRewards.", "Pedir upgrade a The Level al llegar."]
     },
     {
       id: "costa-atlantis",
@@ -90,7 +90,7 @@ VIAJES.push({
     {
       fecha: "2026-09-29", ciudad: "Tenerife",
       actividades: [
-        { hora: "09:30", texto: "Recoger coche de alquiler (TopCar)", tipo: "coche", maps: "TopCar Tenerife Norte" },
+        { hora: "08:30", texto: "Recoger coche de alquiler (TopCar)", tipo: "coche", maps: "TopCar Tenerife Norte" },
         { hora: "12:00", texto: "Los Cristianos", tipo: "playa", maps: "Los Cristianos, Tenerife" }
       ],
       comidas: []

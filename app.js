@@ -333,15 +333,20 @@ function eventos(v) {
 
 /** Dónde estoy ahora (o dónde estaré al empezar el viaje). */
 function ubicacion(v, ahora) {
-  let ciudad = v.dias[0] ? v.dias[0].ciudad : v.casa.ciudad;
   const tzRef = v.casa.tz;
   const hoy = fechaISO(ahora, tzRef);
+  let ciudad = null;
   const d = v.dias.find(x => x.fecha === hoy);
   if (d) ciudad = d.ciudad;
   else if (ahora > v._finMs) ciudad = v.casa.ciudad;
-  // si estamos en pleno vuelo, manda el destino
+  else if (ahora < v._inicioMs) {
+    // Viaje sin empezar: apunta a la primera ciudad de destino con otra zona horaria.
+    const primeraFuera = v.dias.find(x => tzDe(v, x.ciudad) !== tzRef);
+    ciudad = primeraFuera ? primeraFuera.ciudad : (v.dias[v.dias.length - 1] || {}).ciudad;
+  }
   const enVuelo = v._trans.find(t => ahora >= t.sal && ahora <= t.lle);
   if (enVuelo) ciudad = enVuelo.hasta.ciudad;
+  if (!ciudad) ciudad = v.casa.ciudad;
   return { ciudad, tz: tzDe(v, ciudad) };
 }
 
@@ -597,13 +602,13 @@ function vistaVuelos() {
 function vistaCamas() {
   const v = viaje();
   const noches = v._camas.reduce((s, a) => s + (a.noches || 0), 0);
-  let h = seccion("casa", "Alojamientos", `${v._camas.length} estancias · ${noches} noches`);
+  let h = seccion("casa", "Hoteles", `${v._camas.length} estancias · ${noches} noches`);
 
   v._camas.forEach(a => {
     h += `<div class="tarjeta">
       <div class="cama-cab">
         <span class="eti" style="background:rgba(255,255,255,.22);color:inherit">${esc(a.zona || a.ciudad)}</span>
-        <h3>${elMaps(a.nombre, a.maps || a.nombre + ", " + a.ciudad, "")}</h3>
+        <h3>${esc(a.nombre)}</h3>
         <div class="hb">${esc(a.habitacion || "")}</div>
       </div>
       <div class="inout">
@@ -625,7 +630,6 @@ function vistaCamas() {
         <a class="btn suave" href="${esc(rutaUrl(a.maps || a.nombre + ", " + a.ciudad))}" target="_blank" rel="noopener">
           ${ico("pin", 17)} Cómo llegar</a>
       </div>
-      ${bloqueDocs("cama-" + a.id, "Reserva y documentos", docsDe("cama-" + a.id).length ? "Añadir otro" : "Subir la reserva")}
     </div>`;
   });
   return h;
@@ -907,7 +911,7 @@ const TABS = [
   { id: "ahora",  lb: "Ahora",  ico: "rayo",       v: vistaAhora },
   { id: "viaje",  lb: "Viaje",  ico: "calendario", v: vistaViaje },
   { id: "vuelos", lb: "Vuelos", ico: "avion",      v: vistaVuelos },
-  { id: "camas",  lb: "Camas",  ico: "casa",       v: vistaCamas },
+  { id: "camas",  lb: "Hoteles",  ico: "casa",       v: vistaCamas },
   { id: "dinero", lb: "Dinero", ico: "cartera",    v: vistaDinero },
   { id: "mas",    lb: "Más",    ico: "rejilla",    v: vistaMas }
 ];
@@ -936,7 +940,7 @@ function pintarCabecera() {
          <div class="df">${esc(diaSem(ahora, loc.tz))} ${esc(diaMes(ahora, loc.tz))}</div></div>
        <div class="reloj"><div class="et">España</div>
          <div class="hr num">${hora(ahora, tzCasa)}</div>
-         <div class="df">${difH > 0 ? "vas " + Math.abs(difH) + "h por delante" : "vas " + Math.abs(difH) + "h por detrás"}</div></div>`;
+         <div class="df">${difH > 0 ? "van " + Math.abs(difH) + "h por detrás" : "van " + Math.abs(difH) + "h por delante"}</div></div>`;
 }
 
 function pintarNav() {

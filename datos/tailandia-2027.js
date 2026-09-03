@@ -57,7 +57,7 @@ VIAJES.push({
       desde: { ciudad: "Doha",    iata: "DOH", aeropuerto: "Hamad International", terminal: "Terminal única" },
       hasta: { ciudad: "Bangkok", iata: "BKK", aeropuerto: "Suvarnabhumi",        terminal: "Terminal única" },
       salida: "2027-01-12T09:10", llegada: "2027-01-12T19:25",
-      notas: ["La hoja daba 6h 35m de vuelo; con las horas reales salen 6h 15m."]
+      notas: []
     },
     {
       id: "pg219", modo: "avion",
@@ -89,7 +89,7 @@ VIAJES.push({
       desde: { ciudad: "Kuala Lumpur", iata: "KUL", aeropuerto: "Kuala Lumpur Internacional", terminal: "KLIA Terminal 1" },
       hasta: { ciudad: "Doha",         iata: "DOH", aeropuerto: "Hamad International",        terminal: "Terminal única" },
       salida: "2027-01-28T20:45", llegada: "2027-01-28T23:40",
-      notas: ["La hoja daba 7h 25m; con las horas reales salen 7h 55m."]
+      notas: []
     },
     {
       id: "ib392", modo: "avion",
@@ -114,11 +114,12 @@ VIAJES.push({
     {
       id: "blue-house", ciudad: "Bangkok", zona: null,
       nombre: "Blue House 191 Hometel", plataforma: "Agoda",
-      entrada: "2027-01-12", salida: "2027-01-14", horaEntrada: "21:00", horaSalida: "12:00", noches: 2,
+      entrada: "2027-01-12", salida: "2027-01-14", horaEntrada: "14:00", horaSalida: "12:00", noches: 2,
       habitacion: "Habitación superior extragrande",
       servicios: ["Sin piscina", "Sin desayuno"],
       precio: 52, precioNoche: 26, puntos: null, localizador: null,
-      maps: "Blue House 191 Hometel, Bangkok", notas: []
+      maps: "Blue House 191 Hometel, Bangkok",
+      notas: ["El vuelo llega a Bangkok a las 19:25; con desplazamiento al hotel, llegada real prevista sobre las 21:00–21:30."]
     },
     {
       id: "pho-place", ciudad: "Bangkok", zona: null,
@@ -159,7 +160,7 @@ VIAJES.push({
       maps: "Sleepy Station Hostel, Kata Beach, Phuket", notas: []
     },
     {
-      id: "rommanee", ciudad: "Phuket", zona: "Old Town",
+      id: "rommanee", ciudad: "Phuket", zona: null,
       nombre: "The Rommanee Classic Guesthouse", plataforma: "Booking",
       entrada: "2027-01-23", salida: "2027-01-25", horaEntrada: "14:00", horaSalida: "12:00", noches: 2,
       habitacion: "Habitación doble deluxe",
@@ -178,7 +179,7 @@ VIAJES.push({
       maps: "The Colony Infinitum, Kuala Lumpur", notas: []
     },
     {
-      id: "four-points-kl", ciudad: "Kuala Lumpur", zona: "Chinatown",
+      id: "four-points-kl", ciudad: "Kuala Lumpur", zona: null,
       nombre: "Four Points by Sheraton Kuala Lumpur, Chinatown", plataforma: "Marriott",
       entrada: "2027-01-27", salida: "2027-01-28", horaEntrada: "15:00", horaSalida: "12:00", noches: 1,
       habitacion: "Habitación cama king",
