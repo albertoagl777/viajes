@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es" data-paleta="atlantico" data-tema="dia">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=5">
+<title>Mis viajes</title>
+<meta name="theme-color" content="#12161A">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="iconos/icono-192.png">
+<link rel="apple-touch-icon" href="iconos/icono-192.png">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+
+<header class="cab">
+  <div class="cab-fila">
+    <div class="cab-btn" id="cabEmoji" style="font-size:20px">🧭</div>
+    <div class="cab-tit">
+      <h1 id="cabTitulo">Mis viajes</h1>
+      <p id="cabSub"></p>
+    </div>
+    <button class="cab-btn" data-cambiar-viaje aria-label="Cambiar de viaje">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M7 4v13"/><path d="m4 7 3-3 3 3"/><path d="M17 20V7"/><path d="m14 17 3 3 3-3"/>
+      </svg>
+    </button>
+  </div>
+  <div class="relojes" id="relojes"></div>
+</header>
+
+<main id="vista"></main>
+
+<nav class="tabs"><div class="fila" id="tabs"></div></nav>
+
+<!-- Visor de tarjetas de embarque y documentos, a pantalla completa -->
+<div class="visor" id="visor" data-abierto="0">
+  <div class="visor-barra">
+    <button data-cerrar-visor aria-label="Cerrar">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+    <span class="nm" id="visorNombre"></span>
+    <button data-borrar-doc id="visorBorrar" aria-label="Borrar documento">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+      </svg>
+    </button>
+  </div>
+  <div class="visor-lienzo" id="visorLienzo"></div>
+  <div class="visor-pie">Sube el brillo al máximo · la pantalla no se apagará mientras esto esté abierto</div>
+</div>
+
+<!-- Hoja modal -->
+<div class="hoja" id="hoja" data-abierto="0">
+  <div class="hoja-fondo" data-cerrar-hoja></div>
+  <div class="hoja-panel">
+    <div class="hoja-asa"></div>
+    <div id="hojaContenido"></div>
+  </div>
+</div>
+
+<script>window.VIAJES = [];</script>
+
+<!-- ===== DATOS DE LOS VIAJES =====
+     Para añadir un viaje nuevo: crea datos/mi-viaje.js y añade aquí su <script>. -->
+<script src="datos/tenerife-2026.js"></script>
+<script src="datos/tailandia-2027.js"></script>
+
+<script src="app.js"></script>
+</body>
+</html>
