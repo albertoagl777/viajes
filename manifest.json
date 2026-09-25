@@ -1,7 +1,7 @@
 {
   "name": "Mis viajes",
   "short_name": "Viajes",
-  "description": "Itinerario, vuelos, tarjetas de embarque y alojamientos, sin conexión.",
+  "description": "Itinerario, transportes, hoteles y gastos compartidos, sin conexión.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

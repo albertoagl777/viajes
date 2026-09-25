@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=5">
 <title>Mis viajes</title>
 <meta name="theme-color" content="#12161A">
+<meta name="description" content="Itinerario, transportes, hoteles y gastos compartidos de nuestros viajes, sin conexión.">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -22,6 +23,7 @@
       <h1 id="cabTitulo">Mis viajes</h1>
       <p id="cabSub"></p>
     </div>
+    <button class="cab-btn cab-sync" id="cabSync" data-sincronizar aria-label="Actualizar"></button>
     <button class="cab-btn" data-cambiar-viaje aria-label="Cambiar de viaje">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"
            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -64,14 +66,8 @@
   </div>
 </div>
 
-<script>window.VIAJES = [];</script>
-
-<!-- ===== DATOS DE LOS VIAJES =====
-     Para añadir un viaje nuevo: crea datos/mi-viaje.js y añade aquí su <script>. -->
-<script src="datos/tenerife-2026.js"></script>
-<script src="datos/tailandia-2027.js"></script>
-<script src="datos/japon-2025.js"></script>
-
+<!-- Los datos de los viajes ya no están aquí: vienen de tus hojas de Drive
+     a través del Apps Script (ver COMO-FUNCIONA.md). -->
 <script src="app.js"></script>
 </body>
 </html>

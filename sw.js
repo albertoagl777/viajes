@@ -2,11 +2,12 @@
    Service worker: guarda la app entera en el móvil la primera vez que la abres.
    A partir de ahí arranca sin conexión.
 
-   SI CAMBIAS CUALQUIER ARCHIVO (incluidos los de datos/), sube el número de
-   VERSION. Eso es lo que hace que el móvil se descargue la versión nueva.
+   Los DATOS de los viajes no pasan por aquí: vienen de tus hojas de Drive y
+   la app guarda su propia copia. Solo si cambias archivos de la app (app.js,
+   app.css, index.html…) sube el número de VERSION.
    =========================================================================== */
 
-const VERSION = "v4";
+const VERSION = "v5";
 const CACHE = "misviajes-" + VERSION;
 
 const ARCHIVOS = [
@@ -19,10 +20,7 @@ const ARCHIVOS = [
   "lib/pdf.worker.min.js",
   "iconos/icono-192.png",
   "iconos/icono-512.png",
-  "iconos/icono-mascara.png",
-  "datos/tenerife-2026.js",
-  "datos/tailandia-2027.js",
-  "datos/japon-2025.js"
+  "iconos/icono-mascara.png"
 ];
 
 self.addEventListener("install", e => {
