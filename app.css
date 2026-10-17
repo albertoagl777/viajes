@@ -531,3 +531,68 @@ a.check-fila { text-decoration: none; color: inherit; }
 nav.tabs .lb { white-space: nowrap; }
 @media (max-width: 380px) { nav.tabs .lb { font-size: 9.5px; letter-spacing: -.02em; } }
 a.btn { text-decoration: none; }
+
+
+/* ---------- Línea de tiempo del día (v6) ---------- */
+.lt { position: relative; padding: 10px 14px 6px; }
+.lt::before { content: ""; position: absolute; left: 81px; top: 22px; bottom: 22px; width: 2px; background: var(--borde); border-radius: 2px; }
+.lt-paso { display: grid; grid-template-columns: 50px 30px minmax(0, 1fr); gap: 9px; align-items: start; padding: 7px 0; position: relative; }
+.lt-h { font-size: 13px; font-weight: 750; color: var(--tinta-2); text-align: right; padding-top: 6px; }
+.lt-h.m { font-size: 10.5px; font-weight: 750; color: var(--tinta-3); text-transform: uppercase; letter-spacing: .05em; padding-top: 8px; }
+.lt-ico { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--tarjeta); border: 2px solid var(--borde); color: var(--tinta-2); position: relative; z-index: 1; }
+.lt-paso.lt-comer .lt-ico { border-color: var(--acento-2); color: var(--acento-2); }
+.lt-paso.mover .lt-ico { background: var(--tinta); border-color: var(--tinta); color: var(--papel); }
+.lt-paso.hotel .lt-ico { background: var(--acento); border-color: var(--acento); color: #fff; }
+[data-tema="noche"] .lt-paso.hotel .lt-ico { color: #05080A; }
+.lt-cuerpo { min-width: 0; padding-top: 4px; }
+.lt-tit { font-size: 15px; font-weight: 650; line-height: 1.3; }
+.lt-sub { font-size: 12.5px; color: var(--tinta-2); margin-top: 2px; }
+.lt-paso.hotel .lt-tit { color: var(--tinta-2); }
+.lt-opciones { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 7px; }
+.lt-ficha { margin-top: 7px; padding: 10px 12px; border-radius: var(--radio-s); background: var(--acento-luz); color: var(--tinta); font-size: 13px; line-height: 1.45; border-left: 3px solid var(--acento); }
+.lt-enlace { display: inline-flex; align-items: center; gap: 5px; margin-top: 7px; font-size: 12.5px; font-weight: 700; color: var(--acento); text-decoration: none; padding: 5px 10px; border-radius: 999px; background: var(--acento-luz); }
+.lt-enlace:active { opacity: .6; }
+.lt-ruta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 14px 14px; border-top: 1px solid var(--borde-2); }
+.lt-ruta-btn { display: inline-flex; align-items: center; gap: 7px; font-size: 13.5px; font-weight: 700; color: var(--acento); text-decoration: none; padding: 9px 14px; border-radius: 999px; background: var(--acento-luz); }
+.lt-ruta-btn:active { opacity: .6; }
+.lt-ruta-n { font-size: 12px; color: var(--tinta-3); margin-left: auto; }
+
+
+/* ---------- Portada de cada día (v7) ---------- */
+.tarjeta.dia { margin-top: 18px; }
+.portada { display: flex; align-items: stretch; gap: 8px; padding: 14px 6px 10px 16px; background: linear-gradient(135deg, var(--acento-luz), transparent 75%); border-bottom: 1px solid var(--borde-2); }
+.portada-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
+.portada-n { font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--acento); display: flex; align-items: center; gap: 6px; }
+.portada-n span { color: var(--tinta-3); font-weight: 700; }
+.portada-n b { background: var(--acento-2); color: #fff; border-radius: 999px; padding: 1px 8px; font-size: 10px; letter-spacing: .06em; }
+[data-tema="noche"] .portada-n b { color: #05080A; }
+.portada h3 { margin: 3px 0 2px; font-size: 22px; font-weight: 800; letter-spacing: -.02em; line-height: 1.1; }
+.portada-ct { font-size: 13px; color: var(--tinta-2); display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.portada-dib { flex: 0 0 auto; width: 120px; display: grid; place-items: end; }
+.portada-dib svg { display: block; max-width: 100%; height: auto; }
+.tarjeta.dia.hoy { box-shadow: 0 0 0 2px var(--acento-2), var(--sombra); }
+.lt-ruta-btn.suave { background: var(--borde-2); color: var(--tinta-2); }
+.lt-ruta-btn .lt-ruta-n { margin-left: 2px; font-size: 11px; font-weight: 800; background: var(--tarjeta); color: var(--acento); border-radius: 999px; padding: 1px 7px; }
+
+/* ---------- Progreso del viaje en la cabecera (v7) ---------- */
+.progreso:empty { display: none; }
+.progreso { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+.prog-barra { position: relative; flex: 1; min-width: 0; display: flex; height: 16px; border-radius: 999px; overflow: visible; }
+.prog-tramo { height: 100%; background: rgba(255,255,255,.16); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.prog-tramo.b { background: rgba(255,255,255,.09); }
+.prog-tramo:first-child { border-radius: 999px 0 0 999px; }
+.prog-tramo:last-of-type { border-radius: 0 999px 999px 0; }
+.prog-tramo i { font-style: normal; font-size: 9.5px; font-weight: 700; letter-spacing: .04em; opacity: .75; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 4px; }
+.prog-punto { position: absolute; top: 50%; width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%; background: var(--acento-2); box-shadow: 0 0 0 3px rgba(0,0,0,.35); }
+.prog-txt { flex: 0 0 auto; font-size: 11px; font-weight: 700; opacity: .7; white-space: nowrap; }
+
+
+/* ---------- Texto del itinerario completo dentro del día (v8) ---------- */
+.doc-dia { border-bottom: 1px solid var(--borde-2); }
+.doc-dia summary { list-style: none; display: flex; align-items: center; gap: 8px; padding: 11px 16px; font-size: 13.5px; font-weight: 700; color: var(--acento); cursor: pointer; }
+.doc-dia summary::-webkit-details-marker { display: none; }
+.doc-dia summary span { flex: 1; min-width: 0; }
+.doc-dia summary::after { content: "▾"; font-size: 12px; color: var(--tinta-3); transition: transform .2s; }
+.doc-dia[open] summary::after { transform: rotate(180deg); }
+.doc-txt { padding: 0 16px 12px 39px; font-size: 14px; line-height: 1.55; color: var(--tinta-2); }
+.doc-txt p { margin: 0 0 6px; }

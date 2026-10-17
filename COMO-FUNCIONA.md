@@ -80,6 +80,18 @@ Una fila por cosa. Las columnas que importan:
 - **Tipo**: *desayuno*, *comida*, *cena* o *para comer* hace que salga en el bloque de comidas del día y no en la lista de planes. Varias filas de *comida* el mismo día son opciones entre las que elegir. El resto de tipos solo cambian el icono.
 - **Fecha vacía**: sale en *Ideas sin fecha*.
 - **Ciudad**: opcional. Si no la pones, la app la deduce del hotel donde dormís.
+- **Enlace**: opcional. Una dirección web (`https://…`) pegada tal cual: sale como botón debajo del plan. En barco, tren o bus el botón dice *Ver horario*.
+- **Barco, tren o bus con Nota**: la nota sale en una ficha destacada dentro del día.
+
+### La pestaña *Viaje*
+
+Cada día empieza con una portada (número de día, fecha, ciudad y un dibujo según la ciudad) y sigue con una línea de tiempo: planes, comidas, trayectos y hoteles en el orden en que van a pasar. Las comidas con varias filas del mismo tipo salen juntas como *elige una*. La entrada al hotel va siempre al final del día.
+
+Arriba, en la cabecera, una línea fina con las ciudades del viaje y un punto en el día de hoy (antes de salir dice cuántos días faltan).
+
+Debajo de cada día, **Ruta del día en Google Maps**: sale del hotel donde habéis dormido, pasa por todo lo que tenga *Buscar en Maps* y acaba en el hotel de esa noche. Las comidas con varias opciones no entran. Si hay más de 9 paradas, salen varios botones. Al lado, **Itinerario completo** abre el documento que pongas en `📱 Viaje › Itinerario completo`.
+
+Si ese documento es un **Google Doc**, la app además enseña dentro de cada día su texto: cada párrafo que empiece por «Día 14:» va al día 14 (desplegable *Del itinerario completo*). Los títulos de ciudad en MAYÚSCULAS (BANGKOK, CHIANG MAI) separan las ciudades, y lo que escribas bajo una ciudad fuera de un día sale como *A tener en cuenta* en el primer día que paséis allí. Se actualiza solo al editar el documento.
 
 ### "Antes de salir"
 

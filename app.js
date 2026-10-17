@@ -576,7 +576,9 @@ function construirDias(v) {
         ancla = Math.max(ancla, t.lle);
     });
     let prev = ancla;
-    d.planes.forEach(p => {
+    /* Planes y comidas comparten el orden de la hoja, para que cada comida
+       caiga en su sitio dentro del recorrido del día. */
+    d.planes.concat(d.comidas).sort((a, b) => a._i - b._i).forEach(p => {
       if (p.hora) { p._ms = aUTC(d.fecha + "T" + p.hora, tz); p._blando = false; }
       else if (MOMENTOS[p.momento]) { p._ms = aUTC(d.fecha + "T" + MOMENTOS[p.momento].ancla, tz); p._blando = true; }
       else { p._ms = prev + 1000; p._blando = true; }
@@ -860,6 +862,201 @@ function filaEvento(e) {
   </div>`;
 }
 
+/* ---------- Línea de tiempo del día (pestaña Viaje) ---------- */
+
+const esWeb = u => /^https?:\/\/\S+$/i.test(String(u || "").trim());
+
+/** Botón «Abrir ↗» para la columna Enlace de 📱 Itinerario. */
+function botonEnlace(p) {
+  if (!p || !esWeb(p.enlace)) return "";
+  const texto = p.tipo === "barco" || p.tipo === "tren" || p.tipo === "bus" ? "Ver horario" : "Abrir enlace";
+  return `<a class="lt-enlace" href="${esc(p.enlace.trim())}" target="_blank" rel="noopener">${esc(texto)}${ico("enlace", 12)}</a>`;
+}
+
+/** Hora o momento en la columna izquierda del raíl. */
+function horaLinea(e) {
+  if (!e.blando) return `<span class="lt-h num">${esc(hora(e.ms, e.tz))}</span>`;
+  return e.momento ? `<span class="lt-h m">${esc(MOMENTOS[e.momento].lb)}</span>` : `<span class="lt-h"></span>`;
+}
+
+function pasoLinea(e) {
+  const ref = e.ref || {};
+  const hotel = e.clase === "checkin" || e.clase === "checkout";
+  const clase = e.clase === "transporte" ? " mover" : hotel ? " hotel" : "";
+  const maps = ref.maps || (hotel ? (ref.nombre + ", " + ref.ciudad) : null);
+  let sub = e.sub ? esc(e.sub) : "";
+  if (e.clase === "transporte" && ref.pendiente) sub = `<b style="color:var(--ambar)">Sin reservar</b>`;
+  if (e.clase === "transporte" && ref.conexion && ref.conexion.ajustada) {
+    sub += `${sub ? " · " : ""}<b style="color:var(--ambar)">conexión de ${dur(ref.conexion.ms)}</b>`;
+  }
+  /* Los trayectos de la hoja de Itinerario (barco, tren, bus) llevan su nota
+     en una ficha destacada: suele ser lo que hay que mirar en el momento. */
+  const ficha = e.clase === "plan" && (e.tipo === "barco" || e.tipo === "tren" || e.tipo === "bus") && e.sub;
+  return `<div class="lt-paso${clase}">
+    ${horaLinea(e)}
+    <span class="lt-ico">${ico(ICO_TIPO[e.tipo] || "pin", 15)}</span>
+    <div class="lt-cuerpo">
+      <div class="lt-tit">${maps ? elMaps(e.titulo, maps) : esc(e.titulo)}</div>
+      ${ficha ? `<div class="lt-ficha">${sub}</div>` : sub ? `<div class="lt-sub">${sub}</div>` : ""}
+      ${e.clase === "plan" ? botonEnlace(ref) : ""}
+    </div>
+  </div>`;
+}
+
+/** Una comida del día: un sitio, o varias opciones para elegir. */
+function pasoComida(c, sitios, tz) {
+  const primero = sitios[0];
+  const e = { ms: primero._ms, blando: primero._blando, tz,
+              momento: !primero.hora && MOMENTOS[primero.momento] ? primero.momento : null };
+  const notas = [...new Set(sitios.map(s => s.nota).filter(Boolean))];
+  const titulo = sitios.length > 1 ? `${c.lb} · elige una` : `${c.lb} · ${elMaps(primero.texto, primero.maps)}`;
+  return `<div class="lt-paso lt-comer">
+    ${horaLinea(e)}
+    <span class="lt-ico">${ico(c.ico, 15)}</span>
+    <div class="lt-cuerpo">
+      <div class="lt-tit">${titulo}</div>
+      ${notas.length ? `<div class="lt-sub">${notas.map(esc).join(" · ")}</div>` : ""}
+      ${sitios.length > 1 ? `<div class="lt-opciones">${sitios.map(s => s.maps
+        ? `<a class="sitio" href="${esc(mapsUrl(s.maps))}" target="_blank" rel="noopener">${esc(s.texto)}</a>`
+        : `<span class="sitio sin">${esc(s.texto)}</span>`).join("")}</div>` : ""}
+      ${sitios.map(botonEnlace).join("")}
+    </div>
+  </div>`;
+}
+
+/** Todo el día en un solo raíl: planes, trayectos, hoteles y comidas. */
+function lineaDia(d, evDia) {
+  /* La entrada al hotel va al final del día: la hora de la hoja es «desde
+     cuándo se puede», no cuándo llegáis, y en medio de los planes confunde. */
+  const finDia = aUTC(d.fecha + "T23:59", d.tz);
+  const pasos = evDia.map(e => e.clase === "checkin"
+    ? { ms: finDia, orden: 1e9, html: pasoLinea(Object.assign({}, e, {
+        blando: true, momento: null, titulo: "Dormís en " + e.ref.nombre,
+        sub: [e.ref.horaEntrada ? "Entrada desde las " + e.ref.horaEntrada : null, e.ref.habitacion].filter(Boolean).join(" · ") })) }
+    : { ms: e.ms, orden: e.orden || 0, html: pasoLinea(e) });
+  COMIDAS.forEach(c => {
+    const sitios = d.comidas.filter(x => x.tipo === c.k).sort((a, b) => a._i - b._i);
+    if (sitios.length) pasos.push({ ms: sitios[0]._ms, orden: sitios[0]._i, html: pasoComida(c, sitios, d.tz) });
+  });
+  pasos.sort((a, b) => a.ms - b.ms || a.orden - b.orden);
+  return `<div class="lt">${pasos.map(p => p.html).join("")}</div>`;
+}
+
+/* ---------- Ruta del día en Google Maps ----------
+   Sale del hotel donde habéis dormido, pasa por cada plan y cada comida que
+   tenga «Buscar en Maps» (en el orden del día) y acaba en el hotel de esa
+   noche. Los hoteles solo entran si están en la ciudad de ese día: un día de
+   vuelo no mezcla ciudades. Sin ningún plan con Maps, no hay botón. Las comidas con varias opciones no
+   entran: todavía no sabéis cuál. Google admite 9 paradas intermedias por
+   enlace; si hay más, salen varios botones encadenados. */
+function rutaDia(v, d) {
+  const sitioCama = a => a.maps || (a.nombre + ", " + a.ciudad);
+  const despierta = v._camas.find(a => a.entrada < d.fecha && d.fecha <= a.salida);
+  const duerme = v._camas.find(a => a.entrada <= d.fecha && d.fecha < a.salida);
+  const filas = d.planes.concat(d.comidas.filter(c =>
+    d.comidas.filter(x => x.tipo === c.tipo).length === 1)).sort((a, b) => a._ms - b._ms || a._i - b._i);
+  const paradas = filas.filter(p => p.maps).map(p => p.maps);
+  if (!paradas.length) return [];                    // un día sin planes no tiene ruta
+  const puntos = [];
+  if (despierta && despierta.ciudad === d.ciudad) puntos.push(sitioCama(despierta));
+  puntos.push(...paradas);
+  if (duerme && duerme.ciudad === d.ciudad) puntos.push(sitioCama(duerme));
+  const limpios = puntos.filter((q, i) => i === 0 || q.trim().toLowerCase() !== puntos[i - 1].trim().toLowerCase());
+  return limpios.length >= 2 ? limpios : [];
+}
+
+function urlRuta(puntos) {
+  const enc = encodeURIComponent;
+  const o = puntos[0], dst = puntos[puntos.length - 1], medio = puntos.slice(1, -1);
+  return "https://www.google.com/maps/dir/?api=1&origin=" + enc(o) + "&destination=" + enc(dst) +
+    (medio.length ? "&waypoints=" + medio.map(enc).join("%7C") : "");
+}
+
+/* ---------- Texto del documento de itinerario ----------
+   El servidor trocea el Google Doc por «Día N:». Aquí cada trozo va a su día
+   (por el número del mes, que en un viaje de menos de un mes no se repite) y
+   las notas de una ciudad salen en el primer día que se pasa en ella. */
+const normCiudad = c => String(c || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+function bloqueDocumento(v, d) {
+  const doc = v.documento;
+  if (!doc) return "";
+  const n = +d.fecha.slice(8, 10);
+  const delDia = (doc.dias || []).filter(x => x.dia === n && (v.dias.find(y => +y.fecha.slice(8, 10) === n) === d));
+  const primeroCiudad = v.dias.find(y => normCiudad(y.ciudad) === normCiudad(d.ciudad)) === d;
+  const notas = primeroCiudad ? (doc.notas || []).filter(x => normCiudad(x.ciudad) === normCiudad(d.ciudad)) : [];
+  const parrafos = t => t.map(l => `<p>${esc(l)}</p>`).join("");
+  let h = "";
+  delDia.forEach(x => {
+    h += `<details class="doc-dia"><summary>${ico("calendario", 15)}<span>Del itinerario completo</span></summary>
+      <div class="doc-txt">${parrafos(x.texto)}</div></details>`;
+  });
+  notas.forEach(x => {
+    const t = x.texto.filter(l => !/^a tener en cuenta:?$/i.test(l));
+    if (!t.length) return;
+    h += `<details class="doc-dia"><summary>${ico("info", 15)}<span>A tener en cuenta en ${esc(x.ciudad)}</span></summary>
+      <div class="doc-txt">${parrafos(t)}</div></details>`;
+  });
+  return h;
+}
+
+/** Pie de cada día: ruta en Maps y, si la hoja lo tiene, el itinerario completo. */
+function pieDia(v, d) {
+  const ruta = botonesRuta(v, d);
+  const doc = esWeb(v.itinerarioUrl)
+    ? `<a class="lt-ruta-btn suave" href="${esc(v.itinerarioUrl.trim())}" target="_blank" rel="noopener">${ico("calendario", 16)} Itinerario completo</a>`
+    : "";
+  if (!ruta && !doc) return "";
+  return `<div class="lt-ruta">${ruta}${doc}</div>`;
+}
+
+function botonesRuta(v, d) {
+  const pts = rutaDia(v, d);
+  if (!pts.length) return "";
+  const tramos = [];
+  for (let i = 0; i < pts.length - 1; i += 10) tramos.push(pts.slice(i, i + 11));
+  return tramos.map((t, i) => `
+    <a class="lt-ruta-btn" href="${esc(urlRuta(t))}" target="_blank" rel="noopener">${ico("ruta", 16)}
+      ${tramos.length > 1 ? `Ruta · parte ${i + 1} de ${tramos.length}` : `Ruta del día <span class="lt-ruta-n num">${pts.length}</span>`}</a>`).join("");
+}
+
+/* ---------- Dibujos de portada ----------
+   Uno por tipo de sitio, con los colores de la paleta del viaje, así encajan
+   en las cuatro paletas y en modo noche. La ciudad decide el dibujo. */
+const DIBUJO_CIUDAD = [
+  [/bangkok|ayutthaya|sukhothai/i, "templo"],
+  [/chiang|pai\b|doi/i, "montana"],
+  [/phuket|khao lak|krabi|phi phi|samui|lanta|kata|playa|tenerife|canarias/i, "playa"],
+  [/kuala|lumpur|singapur|hong kong/i, "torres"],
+  [/tokio|kioto|osaka|nara|jap/i, "torii"]
+];
+function dibujoCiudad(ciudad, soloVuelo) {
+  let t = "brujula";
+  if (soloVuelo) t = "avion";
+  else for (const [re, k] of DIBUJO_CIUDAD) if (re.test(ciudad || "")) { t = k; break; }
+  const A = "var(--acento)", B = "var(--acento-2)", L = "var(--acento-luz)", T = "var(--tarjeta)";
+  const sol = `<circle cx="96" cy="22" r="11" fill="${B}" opacity=".9"/>`;
+  const suelo = `<path d="M0 74c22-6 40-6 60-2s40 6 60 0v16H0Z" fill="${L}"/>`;
+  const D = {
+    templo: `${sol}${suelo}<path d="M60 6c3 8 5 14 5 22H55c0-8 2-14 5-22Z" fill="${B}"/><path d="M48 28h24l3 8H45Z" fill="${A}"/>
+      <path d="M40 36h40l5 10H35Z" fill="${A}" opacity=".85"/><rect x="38" y="46" width="44" height="26" rx="2" fill="${T}" stroke="${A}" stroke-width="2"/>
+      <path d="M55 72V58a5 5 0 0 1 10 0v14Z" fill="${B}"/><path d="M14 72V56l8-6 8 6v16Z" fill="${A}" opacity=".45"/><path d="M90 72V58l7-5 7 5v14Z" fill="${A}" opacity=".45"/>`,
+    montana: `${sol}<path d="M0 74 30 30l18 22 22-34 50 56Z" fill="${A}" opacity=".85"/><path d="M62 30l8-12 8 12-8-2Z" fill="${T}"/>
+      <path d="M0 80 24 52l20 20 26-18 50 26v8H0Z" fill="${A}" opacity=".45"/><path d="M84 74V62l6-5 6 5v12Z" fill="${B}"/>`,
+    playa: `${sol}<path d="M0 60c20-6 40 6 60 0s40-6 60 0v28H0Z" fill="${A}" opacity=".55"/><path d="M0 72c20-4 40 4 60 0s40-4 60 0v16H0Z" fill="${L}"/>
+      <path d="M34 72c2-18 6-32 14-40" stroke="${B}" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <path d="M48 32c-10-6-20-4-26 4 8-2 16-1 26-4ZM48 32c2-10 10-16 20-14-8 2-14 7-20 14ZM48 32c10-4 20 0 24 8-8-4-16-5-24-8ZM48 32c-6 6-8 14-6 22 2-8 3-14 6-22Z" fill="${A}"/>`,
+    torres: `${sol}${suelo}<path d="M44 74V24l4-10 4 10v50ZM68 74V24l4-10 4 10v50Z" fill="${A}"/><path d="M52 40h16v4H52Z" fill="${B}"/>
+      <path d="M46 30h4M46 40h4M46 50h4M46 60h4M70 30h4M70 40h4M70 50h4M70 60h4" stroke="${T}" stroke-width="1.6"/><path d="M14 74V46h14v28ZM92 74V52h12v22Z" fill="${A}" opacity=".4"/>`,
+    torii: `${sol}${suelo}<path d="M28 22c20 4 44 4 64 0l-2 8c-20 3-40 3-60 0Z" fill="${B}"/><path d="M34 36h52v5H34Z" fill="${B}"/>
+      <path d="M40 30h6v44h-6ZM74 30h6v44h-6Z" fill="${B}"/>`,
+    avion: `<path d="M8 66c30-4 70-24 104-52" stroke="${L}" stroke-width="3" stroke-dasharray="5 6" fill="none" stroke-linecap="round"/>
+      <g transform="translate(78 30) rotate(-32)"><path d="M-22 0c0-3 3-4 6-4h32c5 0 8 2 8 4s-3 4-8 4h-32c-3 0-6-1-6-4Z" fill="${A}"/>
+      <path d="M-2-4 6-20h6L8-4ZM-2 4 6 20h6L8 4ZM-18-3l-4-9h5l5 9ZM-18 3l-4 9h5l5-9Z" fill="${A}" opacity=".8"/></g>`,
+    brujula: `${suelo}<circle cx="60" cy="40" r="24" fill="${T}" stroke="${A}" stroke-width="3"/><path d="M60 20l6 20-6 20-6-20Z" fill="${B}"/><circle cx="60" cy="40" r="3" fill="${A}"/>`
+  };
+  return `<svg viewBox="0 0 120 88" width="120" height="88">${D[t]}</svg>`;
+}
+
 function vistaViaje() {
   const v = viaje(), ahora = Date.now();
   if (v._vacio) return vistaVacio(v);
@@ -883,14 +1080,21 @@ function vistaViaje() {
   visibles.forEach(d => {
     const evDia = ev.filter(e => e.fecha === d.fecha);
     const esHoy = d.fecha === hoyISO;
-    h += `<div class="dia-cab${esHoy ? " hoy" : ""}" ${esHoy ? 'id="diaHoy"' : ""}>
-      <span class="pt"></span>
-      <h3>${esc(diaSem(d.ms, tzRef))} ${esc(diaMes(d.ms, tzRef))}${esHoy ? " · hoy" : ""}</h3>
-      <span class="ct">${esc(d.ciudad || "")}</span>
+    const n = dias.indexOf(d) + 1;
+    const vuela = v._trans.some(t => t.modo === "avion" && fechaISO(t.sal, t.tzO) === d.fecha);
+    h += `<div class="tarjeta dia${esHoy ? " hoy" : ""}" ${esHoy ? 'id="diaHoy"' : ""}>
+      <div class="portada">
+        <div class="portada-txt">
+          <div class="portada-n num">Día ${n} <span>de ${dias.length}</span>${esHoy ? `<b>hoy</b>` : ""}</div>
+          <h3>${esc(diaSem(d.ms, tzRef))} ${esc(diaMes(d.ms, tzRef))}</h3>
+          <div class="portada-ct">${esc(d.ciudad || "")}${vuela ? ` · ${ico("avion", 13)} día de vuelo` : ""}</div>
+        </div>
+        <div class="portada-dib" aria-hidden="true">${dibujoCiudad(d.ciudad, vuela && !d.planes.length)}</div>
+      </div>
+      ${bloqueDocumento(v, d)}
+      ${(evDia.length || d.comidas.length) ? lineaDia(d, evDia) : `<div class="vacio">Día libre</div>`}
+      ${pieDia(v, d)}
     </div>`;
-    h += (evDia.length || d.comidas.length)
-      ? `<div class="tarjeta">${evDia.map(filaEvento).join("")}${bloqueComer(d)}</div>`
-      : `<div class="tarjeta"><div class="vacio">Día libre</div></div>`;
   });
 
   if (v._ideas.length) {
@@ -899,7 +1103,7 @@ function vistaViaje() {
         <div class="evento">
           <div class="evento-ico">${ico(ICO_TIPO[i.tipo] || "bombilla", 17)}</div>
           <div class="evento-cuerpo"><div class="evento-tit">${elMaps(i.texto, i.maps)}</div>
-          ${i.nota ? `<div class="evento-sub">${esc(i.nota)}</div>` : ""}</div>
+          ${i.nota ? `<div class="evento-sub">${esc(i.nota)}</div>` : ""}${botonEnlace(i)}</div>
         </div>`).join("")}</div>`;
   }
   return h;
@@ -1583,6 +1787,7 @@ function pintarCabecera() {
     $("#cabSub").textContent = "";
     $("#cabEmoji").textContent = "🧭";
     $("#relojes").innerHTML = "";
+    $("#progreso").innerHTML = "";
     return;
   }
   const loc = ubicacion(v, ahora);
@@ -1609,12 +1814,41 @@ function pintarCabecera() {
       : (difH > 0 ? `${diaSem(ahora, tzCasa)} · +${difH}h` : `${diaSem(ahora, tzCasa)} · ${difH}h`));
   (v._camas || []).forEach(a => push(a.ciudad, a.tz, `${diaSem(ahora, a.tz)} ${diaMes(ahora, a.tz)}`));
 
+  pintarProgreso(v, ahora);
+
   $("#relojes").innerHTML = relojes.slice(0, 4).map(r => `
     <div class="reloj">
       <div class="et">${esc(r.etiqueta)}</div>
       <div class="hr num">${hora(ahora, r.tz)}</div>
       <div class="df">${esc(r.sub)}</div>
     </div>`).join("");
+}
+
+/** Línea fina con las ciudades del viaje y un punto en el día de hoy. */
+function pintarProgreso(v, ahora) {
+  const el = $("#progreso");
+  if (!el) return;
+  const dias = v.dias || [];
+  if (v._vacio || dias.length < 2) { el.innerHTML = ""; return; }
+  const tramos = [];
+  dias.forEach(d => {
+    const ult = tramos[tramos.length - 1];
+    if (ult && ult.ciudad === d.ciudad) ult.n++;
+    else tramos.push({ ciudad: d.ciudad || "", n: 1 });
+  });
+  const hoy = fechaISO(ahora, v.casa.tz);
+  const i = dias.findIndex(d => d.fecha === hoy);
+  let pos, texto;
+  if (hoy < dias[0].fecha) {
+    const faltan = Math.round((aUTC(dias[0].fecha + "T12:00", v.casa.tz) - aUTC(hoy + "T12:00", v.casa.tz)) / 864e5);
+    pos = 0; texto = faltan === 1 ? "Mañana empieza" : `Faltan ${faltan} días`;
+  } else if (i < 0) { pos = 100; texto = "Viaje terminado"; }
+  else { pos = (i + .5) / dias.length * 100; texto = `Día ${i + 1} de ${dias.length}`; }
+  el.innerHTML = `<div class="prog-barra">${tramos.map((t, k) => {
+      const ancho = t.n / dias.length * 100;
+      return `<span class="prog-tramo${k % 2 ? " b" : ""}" style="width:${ancho}%">${ancho >= 12 ? `<i>${esc(t.ciudad)}</i>` : ""}</span>`;
+    }).join("")}<b class="prog-punto" style="left:${Math.min(98, Math.max(2, pos))}%"></b></div>
+    <div class="prog-txt num">${esc(texto)}</div>`;
 }
 
 /** Icono de la nube de la cabecera + textos de estado. */

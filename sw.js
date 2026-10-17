@@ -7,7 +7,7 @@
    app.css, index.html…) sube el número de VERSION.
    =========================================================================== */
 
-const VERSION = "v5";
+const VERSION = "v8";
 const CACHE = "misviajes-" + VERSION;
 
 const ARCHIVOS = [
