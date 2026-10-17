@@ -1016,30 +1016,30 @@ function botonesRuta(v, d) {
 }
 
 /* ---------- Fotos de portada ----------
-   Fotos reales de Wikimedia Commons, con licencia libre, enlazadas desde allí
-   (no viven en el repositorio). El service worker las guarda al verlas la
-   primera vez, así que después también salen sin conexión. Si una no carga,
-   la portada vuelve al dibujo. La ciudad decide la foto, como el dibujo. */
+   Fotos reales de Unsplash, con su licencia gratuita: se pueden usar sin
+   pagar y sin poner el nombre del autor. Se enlazan desde Unsplash (no viven
+   en el repositorio) a 960 px. El service worker las guarda la primera vez,
+   así que después también salen sin conexión. Si una no carga, la portada
+   vuelve al dibujo. La ciudad decide la foto, como el dibujo. */
 const FOTO_CIUDAD = [
-  [/bangkok/i, {"url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/The_sculptures_of_two_mythical_giant_demons%2C_Thotsakan_and_Sahatsadecha%2C_guarding_the_eastern_gate_of_the_main_chapel_of_Wat_Arun%2C_Bangkok.jpg/960px-The_sculptures_of_two_mythical_giant_demons%2C_Thotsakan_and_Sahatsadecha%2C_guarding_the_eastern_gate_of_the_main_chapel_of_Wat_Arun%2C_Bangkok.jpg", "autor": "BerryJ", "lic": "CC BY-SA 4.0", "pag": "https://commons.wikimedia.org/wiki/File:The_sculptures_of_two_mythical_giant_demons%2C_Thotsakan_and_Sahatsadecha%2C_guarding_the_eastern_gate_of_the_main_chapel_of_Wat_Arun%2C_Bangkok.jpg"}],
-  [/chiang/i, {"url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Phra_That_Doi_Suthep_01.jpg/960px-Phra_That_Doi_Suthep_01.jpg", "autor": "เทวประภาส มากคล้าย", "lic": "CC BY 3.0", "pag": "https://commons.wikimedia.org/wiki/File:Phra_That_Doi_Suthep_01.jpg"}],
-  [/khao lak/i, {"url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/%E0%B9%80%E0%B8%82%E0%B8%B2%E0%B8%AB%E0%B8%A5%E0%B8%B1%E0%B8%81_%E0%B8%AD%E0%B8%B8%E0%B8%97%E0%B8%A2%E0%B8%B2%E0%B8%99%E0%B9%81%E0%B8%AB%E0%B9%88%E0%B8%87%E0%B8%8A%E0%B8%B2%E0%B8%95%E0%B8%B4%E0%B8%A5%E0%B8%B3%E0%B8%94%E0%B8%B1%E0%B8%9A%E0%B8%97%E0%B8%B5%E0%B9%8824_%E0%B8%AD%E0%B8%B8%E0%B8%97%E0%B8%A2%E0%B8%B2%E0%B8%99%E0%B9%81%E0%B8%AB%E0%B9%88%E0%B8%87%E0%B8%8A%E0%B8%B2%E0%B8%95%E0%B8%B4%E0%B9%80%E0%B8%82%E0%B8%B2%E0%B8%AB%E0%B8%A5%E0%B8%B1%E0%B8%81-%E0%B8%A5%E0%B8%B3%E0%B8%A3%E0%B8%B9%E0%B9%88.jpg/960px-%E0%B9%80%E0%B8%82%E0%B8%B2%E0%B8%AB%E0%B8%A5%E0%B8%B1%E0%B8%81_%E0%B8%AD%E0%B8%B8%E0%B8%97%E0%B8%A2%E0%B8%B2%E0%B8%99%E0%B9%81%E0%B8%AB%E0%B9%88%E0%B8%87%E0%B8%8A%E0%B8%B2%E0%B8%95%E0%B8%B4%E0%B8%A5%E0%B8%B3%E0%B8%94%E0%B8%B1%E0%B8%9A%E0%B8%97%E0%B8%B5%E0%B9%8824_%E0%B8%AD%E0%B8%B8%E0%B8%97%E0%B8%A2%E0%B8%B2%E0%B8%99%E0%B9%81%E0%B8%AB%E0%B9%88%E0%B8%87%E0%B8%8A%E0%B8%B2%E0%B8%95%E0%B8%B4%E0%B9%80%E0%B8%82%E0%B8%B2%E0%B8%AB%E0%B8%A5%E0%B8%B1%E0%B8%81-%E0%B8%A5%E0%B8%B3%E0%B8%A3%E0%B8%B9%E0%B9%88.jpg", "autor": "Swhemma", "lic": "CC BY-SA 3.0", "pag": "https://commons.wikimedia.org/wiki/File:%E0%B9%80%E0%B8%82%E0%B8%B2%E0%B8%AB%E0%B8%A5%E0%B8%B1%E0%B8%81_%E0%B8%AD%E0%B8%B8%E0%B8%97%E0%B8%A2%E0%B8%B2%E0%B8%99%E0%B9%81%E0%B8%AB%E0%B9%88%E0%B8%87%E0%B8%8A%E0%B8%B2%E0%B8%95%E0%B8%B4%E0%B8%A5%E0%B8%B3%E0%B8%94%E0%B8%B1%E0%B8%9A%E0%B8%97%E0%B8%B5%E0%B9%8824_%E0%B8%AD%E0%B8%B8%E0%B8%97%E0%B8%A2%E0%B8%B2%E0%B8%99%E0%B9%81%E0%B8%AB%E0%B9%88%E0%B8%87%E0%B8%8A%E0%B8%B2%E0%B8%95%E0%B8%B4%E0%B9%80%E0%B8%82%E0%B8%B2%E0%B8%AB%E0%B8%A5%E0%B8%B1%E0%B8%81-%E0%B8%A5%E0%B8%B3%E0%B8%A3%E0%B8%B9%E0%B9%88.jpg"}],
-  [/phuket|kata/i, {"url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Phuket_-_Kata_Beach_001.jpg/960px-Phuket_-_Kata_Beach_001.jpg", "autor": "ADwarf", "lic": "Dominio público", "pag": "https://commons.wikimedia.org/wiki/File:Phuket_-_Kata_Beach_001.jpg"}],
-  [/kuala|lumpur/i, {"url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/The_Twins_SE_Asia_2019_%2849171985716%29.jpg/960px-The_Twins_SE_Asia_2019_%2849171985716%29.jpg", "autor": "James Kerwin", "lic": "CC BY 2.0", "pag": "https://commons.wikimedia.org/wiki/File:The_Twins_SE_Asia_2019_%2849171985716%29.jpg"}],
-  [/vigo/i, {"url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/R%C3%ADa_de_Vigo-Rande_y_5_barcas_%2810132788785%29.jpg/960px-R%C3%ADa_de_Vigo-Rande_y_5_barcas_%2810132788785%29.jpg", "autor": "juantiagues", "lic": "CC BY-SA 2.0", "pag": "https://commons.wikimedia.org/wiki/File:R%C3%ADa_de_Vigo-Rande_y_5_barcas_%2810132788785%29.jpg"}],
-  [/doha/i, {"url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Bah%C3%ADa_de_Doha%2C_Catar%2C_2013-08-04%2C_DD_06.JPG/960px-Bah%C3%ADa_de_Doha%2C_Catar%2C_2013-08-04%2C_DD_06.JPG", "autor": "Diego Delso", "lic": "CC BY-SA 3.0", "pag": "https://commons.wikimedia.org/wiki/File:Bah%C3%ADa_de_Doha%2C_Catar%2C_2013-08-04%2C_DD_06.JPG"}],
-  [/tokio|tokyo/i, {"url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/1_shibuya_crossing_2012.jpg/960px-1_shibuya_crossing_2012.jpg", "autor": "chensiyuan", "lic": "CC BY-SA 4.0", "pag": "https://commons.wikimedia.org/wiki/File:1_shibuya_crossing_2012.jpg"}],
-  [/kioto|kyoto/i, {"url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Torii_path_with_lantern_at_Fushimi_Inari_Taisha_Shrine%2C_Kyoto%2C_Japan.jpg/960px-Torii_path_with_lantern_at_Fushimi_Inari_Taisha_Shrine%2C_Kyoto%2C_Japan.jpg", "autor": "Basile Morin", "lic": "CC BY-SA 4.0", "pag": "https://commons.wikimedia.org/wiki/File:Torii_path_with_lantern_at_Fushimi_Inari_Taisha_Shrine%2C_Kyoto%2C_Japan.jpg"}],
-  [/osaka/i, {"url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Dotonbori_Neon_Sign%2C_Osaka_20190415_1.jpg/960px-Dotonbori_Neon_Sign%2C_Osaka_20190415_1.jpg", "autor": "DXR", "lic": "CC BY-SA 4.0", "pag": "https://commons.wikimedia.org/wiki/File:Dotonbori_Neon_Sign%2C_Osaka_20190415_1.jpg"}],
-  [/tenerife|teide|canarias/i, {"url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/Teide_qtl1.jpg/960px-Teide_qtl1.jpg", "autor": "Quartl", "lic": "CC BY-SA 3.0", "pag": "https://commons.wikimedia.org/wiki/File:Teide_qtl1.jpg"}]
+  [/bangkok/i, "photo-1736128023093-9a2d76b20cf2"],
+  [/chiang/i, "photo-1725107223095-93176a2bb4ef"],
+  [/khao lak/i, "photo-1691222691453-b32eba6f451e"],
+  [/phuket|kata/i, "photo-1551418843-01c6b62e864d"],
+  [/kuala|lumpur/i, "photo-1757476622253-c79874b198ac"],
+  [/vigo/i, "photo-1627834822528-c35fd087e254"],
+  [/doha/i, "photo-1669300884869-e6e11c67c031"],
+  [/tokio|tokyo/i, "photo-1547448526-5e9d57fa28f7"],
+  [/kioto|kyoto/i, "photo-1772183095320-7a591ec6b9bd"],
+  [/osaka/i, "photo-1584505489290-96eb4e406d08"],
+  [/tenerife|teide|canarias/i, "photo-1635178082660-c8ab2b003543"]
 ];
-const fotoCiudad = c => { for (const [re, f] of FOTO_CIUDAD) if (re.test(c || "")) return f; return null; };
+const fotoCiudad = c => { for (const [re, id] of FOTO_CIUDAD) if (re.test(c || "")) return "https://images.unsplash.com/" + id + "?w=960&q=70&auto=format"; return null; };
 function fondoPortada(ciudad) {
-  const f = fotoCiudad(ciudad);
-  if (!f) return "";
-  return `<img class="portada-foto" src="${esc(f.url)}" alt="" loading="lazy" decoding="async"
-      onerror="this.closest('.portada').classList.remove('con-foto');this.nextElementSibling&&this.nextElementSibling.remove();this.remove()">
-    <a class="portada-cred" href="${esc(f.pag)}" target="_blank" rel="noopener">Foto: ${esc(f.autor)} · ${esc(f.lic)}</a>`;
+  const url = fotoCiudad(ciudad);
+  if (!url) return "";
+  return `<img class="portada-foto" src="${esc(url)}" alt="" loading="lazy" decoding="async"
+      onerror="this.closest('.portada').classList.remove('con-foto');this.remove()">`;
 }
 
 /* ---------- Dibujos de portada ----------

@@ -7,7 +7,7 @@
    app.css, index.html…) sube el número de VERSION.
    =========================================================================== */
 
-const VERSION = "v9";
+const VERSION = "v10";
 const CACHE = "misviajes-" + VERSION;
 
 const ARCHIVOS = [
@@ -41,13 +41,13 @@ self.addEventListener("activate", e => {
 
 /* Primero la copia guardada (para que abra al instante y sin red);
    si hay conexión, se refresca por detrás para la próxima vez. */
-/* Fotos de portada (Wikimedia Commons): la primera vez se bajan y se
+/* Fotos de portada (Unsplash): la primera vez se bajan y se
    guardan; después salen de la copia, también sin conexión. */
-const FOTOS = "misviajes-fotos-v1";
+const FOTOS = "misviajes-fotos-v2";
 self.addEventListener("fetch", e => {
   const req = e.request;
   if (req.method !== "GET") return;
-  if (new URL(req.url).hostname === "upload.wikimedia.org") {
+  if (new URL(req.url).hostname === "images.unsplash.com") {
     e.respondWith(caches.open(FOTOS).then(c => c.match(req).then(g => g || fetch(req).then(r => {
       if (r && (r.ok || r.type === "opaque")) c.put(req, r.clone());
       return r;

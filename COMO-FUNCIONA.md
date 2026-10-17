@@ -85,7 +85,7 @@ Una fila por cosa. Las columnas que importan:
 
 ### La pestaña *Viaje*
 
-Cada día empieza con una portada: número de día, fecha, ciudad y una foto real de la ciudad (de Wikimedia Commons, con su autor y licencia en una esquina; si no hay foto para esa ciudad o no carga, sale un dibujo) y sigue con una línea de tiempo: planes, comidas, trayectos y hoteles en el orden en que van a pasar. Las comidas con varias filas del mismo tipo salen juntas como *elige una*. La entrada al hotel va siempre al final del día.
+Cada día empieza con una portada: número de día, fecha, ciudad y una foto real de la ciudad (de Unsplash; si no hay foto para esa ciudad o no carga, sale un dibujo) y sigue con una línea de tiempo: planes, comidas, trayectos y hoteles en el orden en que van a pasar. Las comidas con varias filas del mismo tipo salen juntas como *elige una*. La entrada al hotel va siempre al final del día.
 
 Arriba, en la cabecera, una línea fina con las ciudades del viaje y un punto en el día de hoy (antes de salir dice cuántos días faltan).
 
